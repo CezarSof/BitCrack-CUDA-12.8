@@ -8,7 +8,7 @@ A tool for brute-forcing Bitcoin private keys. The main purpose of this project 
 
 Using BitCrack
 
-
+*
 -i, --in FILE
     Read addresses from FILE, one address per line. If FILE is "-" then stdin is read
 
@@ -55,7 +55,7 @@ START:END start at key START, end at key END
 
 --continue FILE
     Save/load progress from FILE
-
+*
 
 Examples
 
