@@ -1,7 +1,10 @@
 # BitCrack-CUDA-12.8
 This is https://github.com/brichard19/BitCrack modified to work with CUDA 12.8
+
+
 BitCrack
 A tool for brute-forcing Bitcoin private keys. The main purpose of this project is to contribute to the effort of solving the Bitcoin puzzle transaction: A transaction with 32 addresses that become increasingly difficult to crack.
+
 
 Using BitCrack
 -i, --in FILE
@@ -51,6 +54,7 @@ Using BitCrack
 --continue FILE
     Save/load progress from FILE
 
+
     Choosing the right parameters for your device
 GPUs have many cores. Work for the cores is divided into blocks. Each block contains threads.
 
@@ -61,6 +65,7 @@ blocks: Should be a multiple of the number of compute units on the device. The d
 threads: The number of threads in a block. This must be a multiple of 32. The default is 256.
 
 Keys per thread: The number of keys each thread will process. The performance (keys per second) increases asymptotically with this value. The default is256. Increasing this value will cause the kernel to run longer, but more keys will be processed.
+
 
 Building in Linux
 Using make:
