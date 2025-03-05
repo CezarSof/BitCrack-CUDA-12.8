@@ -61,16 +61,16 @@ Examples
 
 The simplest usage, the keyspace will begin at 0, and the CUDA parameters will be chosen automatically
 
-```./bin/cuBitCrack-CUDA-12.8 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH```
+```./bin/cuBitCrack 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH```
 Multiple keys can be searched at once with minimal impact to performance. Provide the keys on the command line, or in a file with one address per line
 
-```./bin/cuBitCrack-CUDA-12.8 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH 15JhYXn6Mx3oF4Y7PcTAv2wVVAuCFFQNiP 19EEC52krRUK1RkUAEZmQdjTyHT7Gp1TYT```
+```./bin/cuBitCrack 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH 15JhYXn6Mx3oF4Y7PcTAv2wVVAuCFFQNiP 19EEC52krRUK1RkUAEZmQdjTyHT7Gp1TYT```
 To start the search at a specific private key, use the --keyspace option:
 
-```./bin/cuBitCrack-CUDA-12.8 --keyspace 766519C977831678F0000000000 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH```
+```./bin/cuBitCrack --keyspace 766519C977831678F0000000000 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH```
 The --keyspace option can also be used to search a specific range:
 
-```./bin/cuBitCrack-CUDA-12.8 --keyspace 80000000:ffffffff 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH```
+```./bin/cuBitCrack --keyspace 80000000:ffffffff 1FshYsUh3mqgsG29XpZ23eLjWV8Ur3VwH```
 
 
 To periodically save progress, the --continue option can be used. This is useful for recovering after an unexpected interruption:
