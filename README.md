@@ -30,7 +30,7 @@ Using BitCrack
 --keyspace KEYSPACE
     Specify the range of keys to search, where KEYSPACE is in the format,
 
-	START:END start at key START, end at key END
+START:END start at key START, end at key END
 	START:+COUNT start at key START and end at key START + COUNT
     :END start at key 1 and end at key END
 	:+COUNT start at key 1 and end at key 1 + COUNT
@@ -77,7 +77,9 @@ The --keyspace option can also be used to search a specific range:
 To periodically save progress, the --continue option can be used. This is useful for recovering after an unexpected interruption:
    
     
-    Choosing the right parameters for your device
+Choosing the right parameters for your device
+
+
 GPUs have many cores. Work for the cores is divided into blocks. Each block contains threads.
 
 There are 3 parameters that affect performance: blocks, threads per block, and keys per thread.
