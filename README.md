@@ -55,9 +55,13 @@ START:END start at key START, end at key END
 
 ```--continue FILE```
     Save/load progress from FILE
-*
+
+
+
 
 Examples
+
+
 
 
 The simplest usage, the keyspace will begin at 0, and the CUDA parameters will be chosen automatically
@@ -76,8 +80,12 @@ The --keyspace option can also be used to search a specific range:
 
 To periodically save progress, the --continue option can be used. This is useful for recovering after an unexpected interruption:
    
+
+
     
 Choosing the right parameters for your device
+
+
 
 
 GPUs have many cores. Work for the cores is divided into blocks. Each block contains threads.
