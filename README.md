@@ -107,3 +107,11 @@ BTC: 1LqJ9cHPKxPXDRia4tteTJdLXnisnfHsof
 LTC: LfwqkJY7YDYQWqgR26cg2T1F38YyojD67J
 
 ETH: 0xd28082CD48E1B279425346E8f6C651C45A9023c5
+
+
+
+Support My Work
+
+If you find this project useful and appreciate my efforts in updating CUDA from 10.1 to 12.8, consider making a donation. Your support is greatly appreciated and helps me continue improving and optimizing these tools!
+
+BTC:bc1qlt4m7h9gfhc6qdnx2xenxemsuxu4pqasxnpyqu
