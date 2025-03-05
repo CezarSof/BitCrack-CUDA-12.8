@@ -7,55 +7,54 @@ A tool for brute-forcing Bitcoin private keys. The main purpose of this project 
 
 
 Using BitCrack
-
-
-```-i```, --in FILE
+```
+-i, --in FILE
     Read addresses from FILE, one address per line. If FILE is "-" then stdin is read
 
-```-o```, --out FILE
+-o, --out FILE
     Append private keys to FILE, one per line
 
-```-d```, --device N
+-d, --device N
     Use device with ID equal to N
 
-```-b```, --blocks BLOCKS
+-b, --blocks BLOCKS
     The number of CUDA blocks
 
-```-t```, --threads THREADS
+-t, --threads THREADS
     Threads per block
 
-```-p```, --points NUMBER
+-p, --points NUMBER
     Each thread will process NUMBER keys at a time
 
-```--keyspace``` KEYSPACE
+--keyspace KEYSPACE
     Specify the range of keys to search, where KEYSPACE is in the format,
 
-START:END start at key START, end at key END
+	START:END start at key START, end at key END
 	START:+COUNT start at key START and end at key START + COUNT
     :END start at key 1 and end at key END
 	:+COUNT start at key 1 and end at key 1 + COUNT
 
-```-c```, --compressed
+-c, --compressed
     Search for compressed keys (default). Can be used with -u to also search uncompressed keys
 
-```-u```, --uncompressed
+-u, --uncompressed
     Search for uncompressed keys, can be used with -c to search compressed keys
 
-```--compression MODE```
+--compression MODE
     Specify the compression mode, where MODE is 'compressed' or 'uncompressed' or 'both'
 
-```--list-devices```
+--list-devices
     List available devices
 
-```--stride NUMBER```
+--stride NUMBER
     Increment by NUMBER
 
-```--share M/N```
+--share M/N
     Divide the keyspace into N equal sized shares, process the Mth share
 
-```--continue FILE```
+--continue FILE
     Save/load progress from FILE
-
+```
 
 Examples
 
