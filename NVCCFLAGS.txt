@@ -22,4 +22,4 @@ Targets compute capability 7.5 for RTX 2000 GPUs, like the RTX 2080, 2070, and 2
 
 
 
-How to change: Navigate to BitCrack\CudaKeySearchDevice, open Makefile and look for  -gencode arch=compute_   code=sm_   
+How to change: Navigate to BitCrack\CudaKeySearchDevice, open Makefile and look for  -gencode arch=compute_   code=sm_ and change it according to your Nvidia card. 
