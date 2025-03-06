@@ -3,7 +3,7 @@ CPPSRC := $(wildcard *.cpp)
 CUSRC  := $(wildcard *.cu)
 
 # Set CUDA architecture for RTX 4050 (Ada Lovelace architecture)
-NVCCFLAGS = -gencode arch=compute_86,code=sm_86 -gencode arch=compute_89,code=sm_89 \
+NVCCFLAGS = -gencode arch=compute_89,code=sm_89 \
             -std=c++17 -Xptxas "-v" -Xcompiler "-O2 -std=c++17"
 
 all: cuda
