@@ -1,6 +1,5 @@
-
 CUR_DIR=$(shell pwd)
-DIRS=util AddressUtil CmdParse CryptoUtil KeyFinderLib CLKeySearchDevice CudaKeySearchDevice cudaMath clUtil cudaUtil secp256k1lib Logger embedcl
+DIRS=util AddressUtil CmdParse CryptoUtil KeyFinderLib CudaKeySearchDevice cudaMath secp256k1lib Logger
 
 INCLUDE = $(foreach d, $(DIRS), -I$(CUR_DIR)/$d)
 
@@ -21,11 +20,6 @@ CUDA_LIB=${CUDA_HOME}/lib64
 CUDA_INCLUDE=${CUDA_HOME}/include
 CUDA_MATH=$(CUR_DIR)/cudaMath
 
-# OpenCL variables
-OPENCL_LIB=${CUDA_LIB}
-OPENCL_INCLUDE=${CUDA_INCLUDE}
-OPENCL_VERSION=110
-
 export INCLUDE
 export LIBDIR
 export BINDIR
@@ -37,10 +31,6 @@ export CXXFLAGS
 export CUDA_LIB
 export CUDA_INCLUDE
 export CUDA_MATH
-export OPENCL_LIB
-export OPENCL_INCLUDE
-export BUILD_OPENCL
-export BUILD_CUDA
 
 TARGETS=dir_addressutil dir_cmdparse dir_cryptoutil dir_keyfinderlib dir_keyfinder dir_secp256k1lib dir_util dir_logger dir_addrgen
 
@@ -48,21 +38,10 @@ ifeq ($(BUILD_CUDA),1)
 	TARGETS:=${TARGETS} dir_cudaKeySearchDevice dir_cudautil
 endif
 
-ifeq ($(BUILD_OPENCL),1)
-	TARGETS:=${TARGETS} dir_embedcl dir_clKeySearchDevice dir_clutil dir_clunittest
-	CXXFLAGS:=${CXXFLAGS} -DCL_TARGET_OPENCL_VERSION=${OPENCL_VERSION}
-endif
-
 all:	${TARGETS}
 
 dir_cudaKeySearchDevice: dir_keyfinderlib dir_cudautil dir_logger
 	make --directory CudaKeySearchDevice
-
-dir_clKeySearchDevice: dir_embedcl dir_keyfinderlib dir_clutil dir_logger
-	make --directory CLKeySearchDevice
-
-dir_embedcl:
-	make --directory embedcl
 
 dir_addressutil:	dir_util dir_secp256k1lib dir_cryptoutil
 	make --directory AddressUtil
@@ -82,18 +61,11 @@ ifeq ($(BUILD_CUDA), 1)
 	KEYFINDER_DEPS:=$(KEYFINDER_DEPS) dir_cudaKeySearchDevice
 endif
 
-ifeq ($(BUILD_OPENCL),1)
-	KEYFINDER_DEPS:=$(KEYFINDER_DEPS) dir_clKeySearchDevice
-endif
-
 dir_keyfinder:	$(KEYFINDER_DEPS)
 	make --directory KeyFinder
 
 dir_cudautil:
 	make --directory cudaUtil
-
-dir_clutil:
-	make --directory clUtil
 
 dir_secp256k1lib:	dir_cryptoutil
 	make --directory secp256k1lib
@@ -109,8 +81,6 @@ dir_logger:
 
 dir_addrgen:	dir_cmdparse dir_addressutil dir_secp256k1lib
 	make --directory AddrGen
-dir_clunittest:	dir_clutil
-	make --directory CLUnitTests
 
 clean:
 	make --directory AddressUtil clean
@@ -123,10 +93,5 @@ clean:
 	make --directory util clean
 	make --directory cudaInfo clean
 	make --directory Logger clean
-	make --directory clUtil clean
-	make --directory CLKeySearchDevice clean
-	make --directory CudaKeySearchDevice clean
-	make --directory embedcl clean
-	make --directory CLUnitTests clean
 	rm -rf ${LIBDIR}
 	rm -rf ${BINDIR}
