@@ -3,6 +3,8 @@ This is https://github.com/brichard19/BitCrack modified to work with CUDA 12.8 (
 
 
 BitCrack
+
+
 A tool for brute-forcing Bitcoin private keys. The main purpose of this project is to contribute to the effort of solving the Bitcoin puzzle transaction: A transaction with 32 addresses that become increasingly difficult to crack.
 
 For changing NVIDIA NVCCFLAGS go to NVCCFLAGS.txt for more info! 
