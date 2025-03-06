@@ -5,33 +5,25 @@ CPPSRC := $(wildcard *.cpp)
 CUSRC  := $(wildcard *.cu)
 OBJ := $(CPPSRC:.cpp=.o) $(CUSRC:.cu=.o)
 
-# Compiler
+# Compiler settings
 CXX ?= g++
 NVCC ?= nvcc
 
-# Check if we should build CUDA
-ifeq ($(BUILD_CUDA), 1)
-    # Set CUDA architecture for RTX 4050 (Ada Lovelace architecture)
-    NVCCFLAGS = -gencode arch=compute_89,code=sm_89 \
-                -std=c++17 -Xptxas "-v" -Xcompiler "-O3 -std=c++17" \
-                -use_fast_math -maxrregcount=32 -flto
+# CUDA Architecture for RTX 4050 (Ada Lovelace)
+NVCCFLAGS = -gencode arch=compute_89,code=sm_89 \
+            -std=c++17 -Xptxas "-v" -Xcompiler "-O3 -std=c++17" \
+            -use_fast_math -maxrregcount=32 -flto
 
-    # Set C++ flags for CUDA build
-    CXXFLAGS += -DBUILD_CUDA -O3 -std=c++17 -flto
+# C++ compiler flags
+CXXFLAGS = -O3 -std=c++17 -flto -DBUILD_CUDA
 
-    # Include paths for CUDA
-    INCLUDE = -I$(CUDA_INCLUDE) -I$(CUDA_MATH)
-    
-    # Library paths for CUDA
-    LDFLAGS = -lcudart -lcudadevrt
-else
-    # Set C++ flags when not building CUDA
-    CXXFLAGS += -O3 -std=c++17 -flto
-    INCLUDE = 
-    LDFLAGS = 
-endif
+# Include paths
+INCLUDE = -I$(CUDA_INCLUDE) -I$(CUDA_MATH)
 
-# Output directory for libraries (make sure LIBDIR is set correctly)
+# CUDA libraries
+LDFLAGS = -lcudart -lcudadevrt
+
+# Output directory for libraries
 LIBDIR := ./lib
 
 # Default target
@@ -40,10 +32,8 @@ all: cuda
 cuda: $(OBJ)
 	@mkdir -p $(LIBDIR)
 
-	# Link device object files if CUDA is enabled
-ifeq ($(BUILD_CUDA), 1)
-	$(NVCC) -dlink -o cuda_libs.o $(CUSRC:.cu=.o) -lcudadevrt -lcudart
-endif
+	# Link device object files
+	$(NVCC) -dlink -o cuda_libs.o $(CUSRC:.cu=.o) $(LDFLAGS)
 
 	# Create static library
 	ar rvs $(LIBDIR)/lib$(NAME).a $(OBJ)
@@ -56,5 +46,6 @@ endif
 %.o: %.cu
 	$(NVCC) -c $< -o $@ $(NVCCFLAGS) -rdc=true $(INCLUDE)
 
+# Cleanup
 clean:
 	rm -rf *.o cuda_libs.o $(LIBDIR)/lib$(NAME).a
