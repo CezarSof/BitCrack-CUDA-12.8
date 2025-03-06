@@ -1,41 +1,36 @@
 NAME = CudaKeySearchDevice
 
+# Source files
 CPPSRC := $(wildcard *.cpp)
 CUSRC := $(wildcard *.cu)
 
-# Define necessary flags
-CUDA_VERSION := 12.8
-CUDA_INCLUDE := /usr/local/cuda/include
-CUDA_LIB := /usr/local/cuda/lib64
-CUDA_MATH := /usr/local/cuda/include
-CXXFLAGS := -O3 -g -G
-NVCCFLAGS := -O3 -g -G --use_fast_math -arch=sm_89
+# Object files
+CPP_OBJ := $(CPPSRC:.cpp=.o)
+CU_OBJ := $(CUSRC:.cu=.o)
 
-# Include the appropriate directories
-INCLUDE := -I$(CUDA_INCLUDE)
+# Flags for NVCC and CXX
+CXXFLAGS += ${INCLUDE} -I${CUDA_INCLUDE} ${CXXFLAGS}
+NVCCFLAGS += -gencode arch=compute_89,code=sm_89 -use_fast_math ${INCLUDE} -I${CUDA_INCLUDE} -I${CUDA_MATH}
 
-# All target: build the CUDA and C++ sources
-all: cuda
+# Library Directory
+LIBRARY := ${LIBDIR}/lib$(NAME).a
 
-# CUDA Compilation
-cuda:
-	# Compile C++ files
-	for file in ${CPPSRC}; do \
-		${CXX} -c $$file ${INCLUDE} -I${CUDA_INCLUDE} ${CXXFLAGS}; \
-	done
+# Default target
+all: $(LIBRARY)
 
-	# Compile CUDA files
-	for file in ${CUSRC}; do \
-		${NVCC} -c $$file -o $$file".o" ${NVCCFLAGS} ${INCLUDE} -I${CUDA_INCLUDE} -I${CUDA_MATH}; \
-	done
+# Compile .cpp files
+$(CPP_OBJ): %.o: %.cpp
+	$(CXX) -c $< -o $@ $(CXXFLAGS)
 
-	# Link CUDA object files
-	${NVCC} -dlink -o cuda_libs.o *.cu.o -lcudadevrt -lcudart
+# Compile .cu files
+$(CU_OBJ): %.o: %.cu
+	$(NVCC) -c $< -o $@ $(NVCCFLAGS) -rdc=true
 
-	# Archive the static library
-	ar rvs ${LIBDIR}/lib$(NAME).a *.o
+# Link .cu object files
+$(LIBRARY): $(CPP_OBJ) $(CU_OBJ)
+	$(NVCC) -dlink -o cuda_libs.o $(CU_OBJ) -lcudadevrt -lcudart
+	ar rvs $(LIBRARY) $(CPP_OBJ) $(CU_OBJ)
 
-# Clean up generated files
+# Clean up
 clean:
-	rm -f *.o *.cu.o
-	rm -f *.a
+	rm -f $(CPP_OBJ) $(CU_OBJ) $(LIBRARY) cuda_libs.o
