@@ -3,6 +3,11 @@ NAME = CudaKeySearchDevice
 # Source files
 CPPSRC := $(wildcard *.cpp)
 CUSRC  := $(wildcard *.cu)
+OBJ := $(CPPSRC:.cpp=.o) $(CUSRC:.cu=.o)
+
+# Compiler
+CXX ?= g++
+NVCC ?= nvcc
 
 # Check if we should build CUDA
 ifeq ($(BUILD_CUDA), 1)
@@ -16,7 +21,7 @@ ifeq ($(BUILD_CUDA), 1)
 
     # Include paths for CUDA
     INCLUDE = -I$(CUDA_INCLUDE) -I$(CUDA_MATH)
-
+    
     # Library paths for CUDA
     LDFLAGS = -lcudart -lcudadevrt
 else
@@ -32,23 +37,24 @@ LIBDIR := ./lib
 # Default target
 all: cuda
 
-cuda:
-	# Compile C++ source files
-	for file in ${CPPSRC}; do \
-		${CXX} -c $$file ${INCLUDE} ${CXXFLAGS} -o $$file.o; \
-	done
+cuda: $(OBJ)
+	@mkdir -p $(LIBDIR)
 
-	# Only compile CUDA source files if BUILD_CUDA=1
-	ifeq ($(BUILD_CUDA), 1)
-		for file in ${CUSRC}; do \
-			${NVCC} -c $$file -o $$file.o ${NVCCFLAGS} -rdc=true ${INCLUDE}; \
-		done
-		# Link device object files into one file
-		${NVCC} -dlink -o cuda_libs.o *.cu.o -lcudadevrt -lcudart
-	endif
+	# Link device object files if CUDA is enabled
+ifeq ($(BUILD_CUDA), 1)
+	$(NVCC) -dlink -o cuda_libs.o $(CUSRC:.cu=.o) -lcudadevrt -lcudart
+endif
 
 	# Create static library
-	ar rvs ${LIBDIR}/lib$(NAME).a *.o
+	ar rvs $(LIBDIR)/lib$(NAME).a $(OBJ)
+
+# Compile C++ files
+%.o: %.cpp
+	$(CXX) -c $< $(INCLUDE) $(CXXFLAGS) -o $@
+
+# Compile CUDA files
+%.o: %.cu
+	$(NVCC) -c $< -o $@ $(NVCCFLAGS) -rdc=true $(INCLUDE)
 
 clean:
-	rm -f *.o *.cu.o *.a cuda_libs.o
+	rm -rf *.o cuda_libs.o $(LIBDIR)/lib$(NAME).a
