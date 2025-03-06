@@ -92,6 +92,10 @@ threads: The number of threads in a block. This must be a multiple of 32. The de
 
 Keys per thread: The number of keys each thread will process. The performance (keys per second) increases asymptotically with this value. The default is256. Increasing this value will cause the kernel to run longer, but more keys will be processed.
 
+Run on WSL2 or Linux
+
+Windows has higher CUDA overhead than Linux. Running BitCrack on Linux can give a 5-10% speed boost.
+
 
 Building in Linux
 Using make:
