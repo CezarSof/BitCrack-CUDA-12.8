@@ -1,0 +1,6 @@
+NVCCFLAGS = \
+    -gencode arch=compute_89,code=sm_89 \  # For RTX 4000 Series (Ada Lovelace, compute capability 8.9)
+    -gencode arch=compute_86,code=sm_86 \  # For RTX 5000, 3000 Series (Ampere, compute capability 8.6)
+    -gencode arch=compute_80,code=sm_80 \  # For RTX 3000 Series (Ampere, compute capability 8.0)
+    -gencode arch=compute_75,code=sm_75 \  # For RTX 2000 Series (Turing, compute capability 7.5)
+    -std=c++17 -Xptxas "-v" -Xcompiler "-O2 -std=c++17"
