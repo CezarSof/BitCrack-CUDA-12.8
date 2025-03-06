@@ -9,7 +9,7 @@ CUDA_MATH = /usr/local/cuda/include
 CXX = g++
 NVCC = nvcc
 CXXFLAGS = -O3 -std=c++17 -Wall -Wextra
-NVCCFLAGS = -O3 -arch=sm_85 -use_fast_math -Xcompiler -fPIC
+NVCCFLAGS = -O3 -arch=sm_89 -use_fast_math -Xcompiler -fPIC
 INCLUDE = -I$(CUDA_INCLUDE)
 
 LIBDIR = ./libs
