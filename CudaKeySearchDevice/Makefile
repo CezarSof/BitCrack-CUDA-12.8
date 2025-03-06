@@ -1,36 +1,29 @@
 NAME = CudaKeySearchDevice
-
-# Source files
 CPPSRC := $(wildcard *.cpp)
 CUSRC := $(wildcard *.cu)
 
-# Object files
-CPP_OBJ := $(CPPSRC:.cpp=.o)
-CU_OBJ := $(CUSRC:.cu=.o)
+# Add the necessary flags for RTX 4050 architecture
+NVCCFLAGS += -gencode arch=compute_89,code=sm_89
 
-# Flags for NVCC and CXX
-CXXFLAGS += ${INCLUDE} -I${CUDA_INCLUDE} ${CXXFLAGS}
-NVCCFLAGS += -gencode arch=compute_89,code=sm_89 -use_fast_math ${INCLUDE} -I${CUDA_INCLUDE} -I${CUDA_MATH}
+all: cuda
 
-# Library Directory
-LIBRARY := ${LIBDIR}/lib$(NAME).a
+cuda:
+	# Compile .cpp files
+	for file in ${CPPSRC} ; do\
+		${CXX} -c $$file ${INCLUDE} -I${CUDA_INCLUDE} ${CXXFLAGS};\
+	done
 
-# Default target
-all: $(LIBRARY)
+	# Compile .cu files with NVCC and RTX 4050 support
+	for file in ${CUSRC} ; do\
+		${NVCC} -c $$file -o $$file".o" ${NVCCFLAGS} -rdc=true ${INCLUDE} -I${CUDA_INCLUDE} -I${CUDA_MATH};\
+	done
 
-# Compile .cpp files
-$(CPP_OBJ): %.o: %.cpp
-	$(CXX) -c $< -o $@ $(CXXFLAGS)
+	# Link the CUDA object files
+	${NVCC} -dlink -o cuda_libs.o *.cu.o -lcudadevrt -lcudart
 
-# Compile .cu files
-$(CU_OBJ): %.o: %.cu
-	$(NVCC) -c $< -o $@ $(NVCCFLAGS) -rdc=true
+	# Create the static library
+	ar rvs ${LIBDIR}/lib$(NAME).a *.o
 
-# Link .cu object files
-$(LIBRARY): $(CPP_OBJ) $(CU_OBJ)
-	$(NVCC) -dlink -o cuda_libs.o $(CU_OBJ) -lcudadevrt -lcudart
-	ar rvs $(LIBRARY) $(CPP_OBJ) $(CU_OBJ)
-
-# Clean up
 clean:
-	rm -f $(CPP_OBJ) $(CU_OBJ) $(LIBRARY) cuda_libs.o
+	rm -f *.o *.cu.o
+	rm -f *.a
