@@ -6,5 +6,20 @@ NVCCFLAGS = \
     -std=c++17 -Xptxas "-v" -Xcompiler "-O2 -std=c++17"
 
 
+Breakdown:
+RTX 4000 (Ada Lovelace): -gencode arch=compute_89,code=sm_89
 
-How to change: Navigate to BitCrack\CudaKeySearchDevice, open Makefile and look for  -gencode arch=compute_   code=sm_   
+Targets compute capability 8.9 for RTX 4050, 4060, 4070, 4080, 4090, and similar GPUs.
+RTX 5000 (Ampere): -gencode arch=compute_86,code=sm_86
+
+Targets compute capability 8.6 for RTX 5000 GPUs, and other Ampere-based GPUs like the RTX 3060, 3060 Ti, and 3070.
+RTX 3000 (Ampere): -gencode arch=compute_80,code=sm_80
+
+Targets compute capability 8.0 for RTX 3000 GPUs, such as RTX 3070, 3080, and 3090.
+RTX 2000 (Turing): -gencode arch=compute_75,code=sm_75
+
+Targets compute capability 7.5 for RTX 2000 GPUs, like the RTX 2080, 2070, and 2060.
+
+
+
+```How to change: Navigate to BitCrack\CudaKeySearchDevice, open Makefile and look for  -gencode arch=compute_   code=sm_```   
