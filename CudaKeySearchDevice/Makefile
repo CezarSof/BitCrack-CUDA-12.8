@@ -1,3 +1,9 @@
+[]]]][][][][]][][][][][[][]
+
+
+
+
+
 NAME=CudaKeySearchDevice
 CPPSRC:=$(wildcard *.cpp)
 CUSRC:=$(wildcard *.cu)
