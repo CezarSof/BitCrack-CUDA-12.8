@@ -1,45 +1,41 @@
 NAME = CudaKeySearchDevice
+
 CPPSRC := $(wildcard *.cpp)
 CUSRC := $(wildcard *.cu)
 
-# CUDA and compiler flags
-CUDA_INCLUDE = /usr/local/cuda/include
-CUDA_LIB = /usr/local/cuda/lib64
-CUDA_MATH = /usr/local/cuda/include
-CXX = g++
-NVCC = nvcc
-CXXFLAGS = -O3 -std=c++17 -Wall -Wextra
-NVCCFLAGS = -O3 -arch=sm_89 -use_fast_math -Xcompiler -fPIC
-INCLUDE = -I$(CUDA_INCLUDE)
+# Define necessary flags
+CUDA_VERSION := 12.8
+CUDA_INCLUDE := /usr/local/cuda/include
+CUDA_LIB := /usr/local/cuda/lib64
+CUDA_MATH := /usr/local/cuda/include
+CXXFLAGS := -O3 -g -G
+NVCCFLAGS := -O3 -g -G --use_fast_math -arch=sm_89
 
-LIBDIR = ./libs
+# Include the appropriate directories
+INCLUDE := -I$(CUDA_INCLUDE)
 
-# Default target
+# All target: build the CUDA and C++ sources
 all: cuda
 
-# Compile C++ files
+# CUDA Compilation
 cuda:
-	@echo "Compiling C++ files..."
-	for file in ${CPPSRC} ; do \
+	# Compile C++ files
+	for file in ${CPPSRC}; do \
 		${CXX} -c $$file ${INCLUDE} -I${CUDA_INCLUDE} ${CXXFLAGS}; \
 	done
 
-	@echo "Compiling CUDA files..."
-	# Compile CUDA files with fast math
-	for file in ${CUSRC} ; do \
-		${NVCC} -c $$file -o $$file".o" ${NVCCFLAGS} -rdc=true ${INCLUDE} -I${CUDA_INCLUDE} -I${CUDA_MATH}; \
+	# Compile CUDA files
+	for file in ${CUSRC}; do \
+		${NVCC} -c $$file -o $$file".o" ${NVCCFLAGS} ${INCLUDE} -I${CUDA_INCLUDE} -I${CUDA_MATH}; \
 	done
 
-	@echo "Linking CUDA files..."
-	# Link CUDA files
+	# Link CUDA object files
 	${NVCC} -dlink -o cuda_libs.o *.cu.o -lcudadevrt -lcudart
 
-	@echo "Archiving static library..."
+	# Archive the static library
 	ar rvs ${LIBDIR}/lib$(NAME).a *.o
 
-# Clean up build artifacts
+# Clean up generated files
 clean:
 	rm -f *.o *.cu.o
-	rm -f ${LIBDIR}/lib$(NAME).a
-
-.PHONY: all clean
+	rm -f *.a
