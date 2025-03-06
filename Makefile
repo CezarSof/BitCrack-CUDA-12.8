@@ -1,132 +1,53 @@
+# Define base paths
+CUR_DIR := $(shell pwd)
+DIRS := util AddressUtil CmdParse CryptoUtil KeyFinderLib CudaKeySearchDevice cudaMath cudaUtil secp256k1lib Logger
 
-CUR_DIR=$(shell pwd)
-DIRS=util AddressUtil CmdParse CryptoUtil KeyFinderLib CLKeySearchDevice CudaKeySearchDevice cudaMath clUtil cudaUtil secp256k1lib Logger embedcl
+INCLUDE := $(foreach d, $(DIRS), -I$(CUR_DIR)/$d)
 
-INCLUDE = $(foreach d, $(DIRS), -I$(CUR_DIR)/$d)
-
-LIBDIR=$(CUR_DIR)/lib
-BINDIR=$(CUR_DIR)/bin
-LIBS+=-L$(LIBDIR)
+# Define library and binary directories
+LIBDIR := $(CUR_DIR)/lib
+BINDIR := $(CUR_DIR)/bin
+LIBS := -L$(LIBDIR)
 
 # C++ options
-CXX=g++
-CXXFLAGS=-O2 -std=c++11
+CXX := g++
+CXXFLAGS := -O2 -std=c++17
 
-# CUDA variables
-COMPUTE_CAP=30
-NVCC=nvcc
-NVCCFLAGS=-std=c++11 -gencode=arch=compute_${COMPUTE_CAP},code=\"sm_${COMPUTE_CAP}\" -Xptxas="-v" -Xcompiler "${CXXFLAGS}"
-CUDA_HOME=/usr/local/cuda
-CUDA_LIB=${CUDA_HOME}/lib64
-CUDA_INCLUDE=${CUDA_HOME}/include
-CUDA_MATH=$(CUR_DIR)/cudaMath
+# CUDA configuration (optimized for RTX 4050)
+COMPUTE_CAP := 86
+NVCC := nvcc
+NVCCFLAGS := -std=c++17 -gencode=arch=compute_${COMPUTE_CAP},code=sm_${COMPUTE_CAP} -Xptxas="-v" -Xcompiler "${CXXFLAGS}"
+CUDA_HOME := /usr/local/cuda-12.8
+CUDA_LIB := ${CUDA_HOME}/lib64
+CUDA_INCLUDE := ${CUDA_HOME}/include
+CUDA_MATH := $(CUR_DIR)/cudaMath
 
-# OpenCL variables
-OPENCL_LIB=${CUDA_LIB}
-OPENCL_INCLUDE=${CUDA_INCLUDE}
-OPENCL_VERSION=110
+# Export environment variables
+export INCLUDE LIBDIR BINDIR NVCC NVCCFLAGS LIBS CXX CXXFLAGS CUDA_LIB CUDA_INCLUDE CUDA_MATH BUILD_CUDA=1
 
-export INCLUDE
-export LIBDIR
-export BINDIR
-export NVCC
-export NVCCFLAGS
-export LIBS
-export CXX
-export CXXFLAGS
-export CUDA_LIB
-export CUDA_INCLUDE
-export CUDA_MATH
-export OPENCL_LIB
-export OPENCL_INCLUDE
-export BUILD_OPENCL
-export BUILD_CUDA
+# Define build targets
+TARGETS := $(addprefix dir_, AddressUtil CmdParse CryptoUtil KeyFinderLib CudaKeySearchDevice cudaUtil secp256k1lib Logger AddrGen)
 
-TARGETS=dir_addressutil dir_cmdparse dir_cryptoutil dir_keyfinderlib dir_keyfinder dir_secp256k1lib dir_util dir_logger dir_addrgen
+# Ensure bin and lib directories exist
+$(BINDIR) $(LIBDIR):
+	mkdir -p $@
 
-ifeq ($(BUILD_CUDA),1)
-	TARGETS:=${TARGETS} dir_cudaKeySearchDevice dir_cudautil
-endif
+# Default target to build
+all: $(BINDIR) $(LIBDIR) $(TARGETS)
 
-ifeq ($(BUILD_OPENCL),1)
-	TARGETS:=${TARGETS} dir_embedcl dir_clKeySearchDevice dir_clutil dir_clunittest
-	CXXFLAGS:=${CXXFLAGS} -DCL_TARGET_OPENCL_VERSION=${OPENCL_VERSION}
-endif
+# Build dependencies and directories
+define build_dir
+$(1): $(addprefix dir_, $(2))
+	$(MAKE) --directory $(1) $(MAKEFLAGS)
+endef
 
-all:	${TARGETS}
+$(foreach dir, $(DIRS), $(eval $(call build_dir,$(dir),)))
 
-dir_cudaKeySearchDevice: dir_keyfinderlib dir_cudautil dir_logger
-	make --directory CudaKeySearchDevice
-
-dir_clKeySearchDevice: dir_embedcl dir_keyfinderlib dir_clutil dir_logger
-	make --directory CLKeySearchDevice
-
-dir_embedcl:
-	make --directory embedcl
-
-dir_addressutil:	dir_util dir_secp256k1lib dir_cryptoutil
-	make --directory AddressUtil
-
-dir_cmdparse:
-	make --directory CmdParse
-
-dir_cryptoutil:
-	make --directory CryptoUtil
-
-dir_keyfinderlib:	dir_util dir_secp256k1lib dir_cryptoutil dir_addressutil dir_logger
-	make --directory KeyFinderLib
-
-KEYFINDER_DEPS=dir_keyfinderlib
-
-ifeq ($(BUILD_CUDA), 1)
-	KEYFINDER_DEPS:=$(KEYFINDER_DEPS) dir_cudaKeySearchDevice
-endif
-
-ifeq ($(BUILD_OPENCL),1)
-	KEYFINDER_DEPS:=$(KEYFINDER_DEPS) dir_clKeySearchDevice
-endif
-
-dir_keyfinder:	$(KEYFINDER_DEPS)
-	make --directory KeyFinder
-
-dir_cudautil:
-	make --directory cudaUtil
-
-dir_clutil:
-	make --directory clUtil
-
-dir_secp256k1lib:	dir_cryptoutil
-	make --directory secp256k1lib
-
-dir_util:
-	make --directory util
-
-dir_cudainfo:
-	make --directory cudaInfo
-
-dir_logger:
-	make --directory Logger
-
-dir_addrgen:	dir_cmdparse dir_addressutil dir_secp256k1lib
-	make --directory AddrGen
-dir_clunittest:	dir_clutil
-	make --directory CLUnitTests
-
+# Clean up build artifacts
 clean:
-	make --directory AddressUtil clean
-	make --directory CmdParse clean
-	make --directory CryptoUtil clean
-	make --directory KeyFinderLib clean
-	make --directory KeyFinder clean
-	make --directory cudaUtil clean
-	make --directory secp256k1lib clean
-	make --directory util clean
-	make --directory cudaInfo clean
-	make --directory Logger clean
-	make --directory clUtil clean
-	make --directory CLKeySearchDevice clean
-	make --directory CudaKeySearchDevice clean
-	make --directory embedcl clean
-	make --directory CLUnitTests clean
-	rm -rf ${LIBDIR}
-	rm -rf ${BINDIR}
+	@echo "Cleaning build files..."
+	$(foreach dir, $(DIRS), $(MAKE) --directory $(dir) clean;)
+	rm -rf $(LIBDIR) $(BINDIR)
+
+# Allow parallel builds
+.PHONY: all clean $(DIRS)
