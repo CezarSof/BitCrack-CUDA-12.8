@@ -1,9 +1,3 @@
-][[][[][][][]][][][[][[]][[[[][]
-
-
-
-
-
 #include "CudaKeySearchDevice.h"
 #include "Logger.h"
 #include "util.h"
