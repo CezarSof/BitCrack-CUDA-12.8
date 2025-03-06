@@ -11,19 +11,14 @@ LIBS+=-L$(LIBDIR)
 CXX=g++
 CXXFLAGS=-O2 -std=c++11
 
-# CUDA variables
-COMPUTE_CAP=30
+# CUDA variables for RTX optimization
+COMPUTE_CAP=80  # For RTX series, use compute capability 8.0, e.g., RTX 30/40 series
 NVCC=nvcc
 NVCCFLAGS=-std=c++11 -gencode=arch=compute_${COMPUTE_CAP},code=\"sm_${COMPUTE_CAP}\" -Xptxas="-v" -Xcompiler "${CXXFLAGS}"
 CUDA_HOME=/usr/local/cuda
 CUDA_LIB=${CUDA_HOME}/lib64
 CUDA_INCLUDE=${CUDA_HOME}/include
 CUDA_MATH=$(CUR_DIR)/cudaMath
-
-# Remove OpenCL variables
-# OPENCL_LIB=${CUDA_LIB}
-# OPENCL_INCLUDE=${CUDA_INCLUDE}
-# OPENCL_VERSION=110
 
 export INCLUDE
 export LIBDIR
@@ -36,10 +31,6 @@ export CXXFLAGS
 export CUDA_LIB
 export CUDA_INCLUDE
 export CUDA_MATH
-# Remove OpenCL export
-# export OPENCL_LIB
-# export OPENCL_INCLUDE
-# export BUILD_OPENCL
 
 TARGETS=dir_addressutil dir_cmdparse dir_cryptoutil dir_keyfinderlib dir_keyfinder dir_secp256k1lib dir_util dir_logger dir_addrgen
 
@@ -47,23 +38,10 @@ ifeq ($(BUILD_CUDA),1)
 	TARGETS:=${TARGETS} dir_cudaKeySearchDevice dir_cudautil
 endif
 
-# Remove OpenCL-related targets and dependencies
-#ifeq ($(BUILD_OPENCL),1)
-#	TARGETS:=${TARGETS} dir_embedcl dir_clKeySearchDevice dir_clutil dir_clunittest
-#	CXXFLAGS:=${CXXFLAGS} -DCL_TARGET_OPENCL_VERSION=${OPENCL_VERSION}
-#endif
-
 all:	${TARGETS}
 
 dir_cudaKeySearchDevice: dir_keyfinderlib dir_cudautil dir_logger
 	make --directory CudaKeySearchDevice
-
-# Remove OpenCL-related targets
-# dir_clKeySearchDevice: dir_embedcl dir_keyfinderlib dir_clutil dir_logger
-#	make --directory CLKeySearchDevice
-
-# dir_embedcl:
-#	make --directory embedcl
 
 dir_addressutil:	dir_util dir_secp256k1lib dir_cryptoutil
 	make --directory AddressUtil
@@ -83,20 +61,11 @@ ifeq ($(BUILD_CUDA), 1)
 	KEYFINDER_DEPS:=$(KEYFINDER_DEPS) dir_cudaKeySearchDevice
 endif
 
-# Remove OpenCL-related dependencies
-#ifeq ($(BUILD_OPENCL),1)
-#	KEYFINDER_DEPS:=$(KEYFINDER_DEPS) dir_clKeySearchDevice
-#endif
-
 dir_keyfinder:	$(KEYFINDER_DEPS)
 	make --directory KeyFinder
 
 dir_cudautil:
 	make --directory cudaUtil
-
-# Remove OpenCL-related directories
-# dir_clutil:
-#	make --directory clUtil
 
 dir_secp256k1lib:	dir_cryptoutil
 	make --directory secp256k1lib
@@ -113,10 +82,6 @@ dir_logger:
 dir_addrgen:	dir_cmdparse dir_addressutil dir_secp256k1lib
 	make --directory AddrGen
 
-# Remove OpenCL-related targets
-# dir_clunittest:	dir_clutil
-#	make --directory CLUnitTests
-
 clean:
 	make --directory AddressUtil clean
 	make --directory CmdParse clean
@@ -128,10 +93,5 @@ clean:
 	make --directory util clean
 	make --directory cudaInfo clean
 	make --directory Logger clean
-	# Remove OpenCL-related clean rules
-	# make --directory clUtil clean
-	# make --directory CLKeySearchDevice clean
-	# make --directory embedcl clean
-	# make --directory CLUnitTests clean
 	rm -rf ${LIBDIR}
 	rm -rf ${BINDIR}
