@@ -4,3 +4,7 @@ NVCCFLAGS = \
     -gencode arch=compute_80,code=sm_80 \  # For RTX 3000 Series (Ampere, compute capability 8.0)
     -gencode arch=compute_75,code=sm_75 \  # For RTX 2000 Series (Turing, compute capability 7.5)
     -std=c++17 -Xptxas "-v" -Xcompiler "-O2 -std=c++17"
+
+
+
+How to change: Navigate to BitCrack\CudaKeySearchDevice, open Makefile and look for  -gencode arch=compute_   code=sm_   
